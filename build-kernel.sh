@@ -12,8 +12,10 @@ else
 fi
 mkdir -p $BUILD_DEST
 
-/refresh-repo.sh;
+rm -rf $LINUX
+git clone --single-branch --branch $RPI_KERNEL_BRANCH --depth 1 $RPI_KERNEL_REPO $LINUX
 cd $LINUX
+git checkout -q "$RPI_KERNEL_COMMIT"
 
 # Accept custom defconfig
 DEFCONFIG=${DEFCONFIG:="bcmrpi3_defconfig"}
@@ -22,10 +24,10 @@ if [ "x$DEFCONFIG" != "xbcmrpi3_defconfig" ]; then
 fi
 
 # Compile Linux kernel
-MAKE="make -j 8 ARCH=arm64 CROSS_COMPILE=$CROSS_COMPILE"
+MAKE="make -j $(nproc) ARCH=arm64 CROSS_COMPILE=$CROSS_COMPILE"
 
 # Add kernel branding for HypriotOS
-sed -i 's/^EXTRAVERSION =.*/EXTRAVERSION = -hypriotos/g' Makefile
+sed -i 's/^EXTRAVERSION =.*/EXTRAVERSION = -rancher/g' Makefile
 export LOCALVERSION="" # suppress '+' sign in 4.9.2+
 
 # Configure the kernel
